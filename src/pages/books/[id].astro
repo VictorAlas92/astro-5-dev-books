@@ -1,0 +1,95 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import { SHOW_BUY_BUTTON } from "astro:env/server";
+import AmazonLogo from "../../components/AmazonLogo.astro";
+import BookScore from "../../components/BookScore.astro";
+import BuyButton from "../../components/BuyButton.astro";
+
+export async function getStaticPaths() {
+  const books = await getCollection("books");
+  return books.map((book) => ({
+    params: { id: book.slug },
+    props: { book },
+  }));
+}
+
+const { book } = Astro.props;
+// console.log("Book data:", book);
+const { data, slug } = book;
+// console.log("data data", data);
+
+const { title, author, img, readtime, description, buy } = data;
+
+const { Content } = await render(book);
+
+export const prerender = true;
+---
+
+<Layout title={title}>
+  <div class="flex gap-12">
+    <aside class="flex gap-4 flex-col items-center">
+      <a href="/"> 🔙 volver atras</a>
+      <img
+        transition:name={`img-${slug}`}
+        src={`../../${img}`}
+        alt={title}
+        class="w-72 h-auto rounded"
+      />
+      <BookScore id={slug} server:defer>
+        <span slot="fallback" class="text-sm opacity-70"
+          >Cargando puntiacion</span
+        >
+      </BookScore>
+      {
+        SHOW_BUY_BUTTON &&  (
+          /**
+             * se fue a un server island llamado BuyButton.astro
+             <a
+               href={buy.spain}
+               title="Comprar libro"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-balance inline-flex gap-2 items-center bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black font-bold py-2 px-4 rounded-lg border border-yellow-500 transition duration-200 ease-in-out hover:scale-105 justify-center text-center">
+               Comprar en Amazon
+               <AmazonLogo />
+             </a>
+             */
+          <BuyButton buy={buy} server:defer>
+            <a
+              slot="fallback"
+              class="text-balance inline-flex gap-2 items-center bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black font-bold py-2 px-4 rounded-lg border border-yellow-500 transition duration-200 ease-in-out hover:scale-105 justify-center text-center">
+              Comprar en Amazon
+              <AmazonLogo />
+            </a>
+          </BuyButton>
+        )
+      }
+      <!-- TODO: enlace de compra -->
+    </aside>
+    <main class="max-w-3xl">
+      <h1
+        transition:name={`title-${slug}`}
+        class="text-4xl font-bold mb-4">
+        {title}
+      </h1>
+      <div class="prose prose-invert">
+        <Content />
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<!-- <script>
+ todo esto se fue a un server island llamado BookScore.astro
+  import { SCORE_API_ENDPOINT } from "astro:env/client";
+  const scoreElement = document.querySelector("#score");
+
+  fetch(SCORE_API_ENDPOINT)
+    .then((res) => res.text())
+    .then((scoreValue) => {
+      if (scoreElement) {
+        scoreElement.innerHTML = `⭐️ puntuacion: ${scoreValue.trim()}/5`;
+      }
+    });
+</script> -->
