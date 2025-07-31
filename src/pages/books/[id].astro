@@ -32,7 +32,7 @@ export const prerender = true;
       <a href="/"> 🔙 volver atras</a>
       <img
         transition:name={`img-${slug}`}
-        src={`../../${img}`}
+        src={`/${img}`}
         alt={title}
         class="w-72 h-auto rounded"
       />
@@ -42,7 +42,7 @@ export const prerender = true;
         >
       </BookScore>
       {
-        SHOW_BUY_BUTTON &&  (
+        SHOW_BUY_BUTTON && (
           /**
              * se fue a un server island llamado BuyButton.astro
              <a
